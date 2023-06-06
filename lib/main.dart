@@ -1,3 +1,4 @@
+import 'package:ativa_ja/pages/root_page.dart';
 import 'package:carrier_info/carrier_info.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
@@ -25,8 +26,8 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       title: 'Ativa Já',
       debugShowCheckedModeBanner: false,
-      // home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      home: const TestHomePage(),
+      home: const RootPage(),
+      // home: const TestHomePage(),
     );
   }
 }
