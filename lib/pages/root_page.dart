@@ -1,4 +1,7 @@
 import 'package:ativa_ja/pages/blind/blind_friendly_mode.dart';
+import 'package:ativa_ja/pages/favorites/favorites_page.dart';
+import 'package:ativa_ja/pages/history/history_page.dart';
+import 'package:ativa_ja/pages/home/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -46,6 +49,13 @@ class _RootPageState extends State<RootPage> {
                 Tab(icon: Icon(Icons.history), iconMargin: EdgeInsets.zero),
               ],
             ),
+          ),
+          body: const TabBarView(
+            children: [
+              HomePage(),
+              FavoritesPage(),
+              HistoryPage()
+            ],
           ),
         ),
       ),
