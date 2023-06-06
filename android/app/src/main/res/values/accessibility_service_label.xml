@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Activa Já</string>
+    <string name="accessibility_service_label">Serviço Activa Já</string>
+    <string name="accessibility_service_description">Este aplicativo facilita a activação de ofertas redes móveis</string>
+</resources>

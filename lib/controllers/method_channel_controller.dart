@@ -2,7 +2,7 @@ import 'package:flutter/services.dart';
 
 class MethodChannelController {
   static const MethodChannel ussdChannel =
-      MethodChannel("ativaja.co.mz/ussd_channel");
+      MethodChannel("ativaja.co.mz/ussd_channel/to_native");
 
   Future<bool> isServiceEnabled() async {
     final bool result = await ussdChannel.invokeMethod("isServiceEnabled");
@@ -16,7 +16,7 @@ class MethodChannelController {
   void executeUSSD(String ussdCode, String steps) {
     ussdChannel.invokeMethod(
       "executeUSSD",
-      {"ussdCode": ussdCode, "steps": steps},
+      {"ussdCode": ussdCode, "fullRoute": steps},
     );
   }
 }
