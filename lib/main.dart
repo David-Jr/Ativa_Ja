@@ -1,3 +1,5 @@
+import 'package:ativa_ja/controllers/data_controller.dart';
+import 'package:ativa_ja/controllers/dummy_data.dart';
 import 'package:ativa_ja/pages/root_page.dart';
 import 'package:carrier_info/carrier_info.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
@@ -6,6 +8,10 @@ import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 void main() {
+  ListsController controller = ListsController();
+  controller.setDummyData(dummyShortcutList, dummyIspList);
+  Get.put<ListsController>(controller);
+
   runApp(const MyApp());
 }
 
@@ -64,9 +70,9 @@ class _TestHomePageState extends State<TestHomePage> {
 
     try {
       androidInfo = await CarrierInfo.getAndroidInfo();
-      print(androidInfo as String);
+      debugPrint(androidInfo as String);
     } catch (e) {
-      print(e);
+      debugPrint(e as String);
     }
   }
 
