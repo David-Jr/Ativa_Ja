@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+
 class Isp {
   int id;
   String name;
-  String hexColor;
+  Color hexColor;
   String svgPath;
   Isp({
     required this.id,
@@ -15,7 +17,7 @@ class Isp {
   Isp copyWith({
     int? id,
     String? name,
-    String? hexColor,
+    Color? hexColor,
     String? svgPath,
   }) {
     return Isp(
@@ -31,7 +33,7 @@ class Isp {
   
     result.addAll({'id': id});
     result.addAll({'name': name});
-    result.addAll({'hexColor': hexColor});
+    result.addAll({'hexColor': hexColor.value});
     result.addAll({'svgPath': svgPath});
   
     return result;
@@ -41,7 +43,7 @@ class Isp {
     return Isp(
       id: map['id']?.toInt() ?? 0,
       name: map['name'] ?? '',
-      hexColor: map['hexColor'] ?? '',
+      hexColor: Color(map['hexColor']),
       svgPath: map['svgPath'] ?? '',
     );
   }
