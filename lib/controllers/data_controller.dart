@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_final_fields
+
 import 'package:ativa_ja/models/isp.dart';
 import 'package:ativa_ja/models/shortcut.dart';
 import 'package:get/get.dart';
@@ -35,6 +37,7 @@ class ListsController extends GetxController {
   }
 
   void removeFavorite(int id) {
+    
     //
   }
 }

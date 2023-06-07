@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
+import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -17,10 +18,12 @@ import android.view.KeyEvent;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
@@ -31,9 +34,24 @@ public class MainActivity extends FlutterActivity {
     //    private static final String CHANNEL = "samples.flutter.dev/battery";
     private static final String TO_NATIVE_CHANNEL = "ativaja.co.mz/ussd_channel/to_native";
     private static final String TO_FLUTTER_CHANNEL = "ativaja.co.mz/ussd_channel/native_to_flutter";
+    private static final String TAG = "TAGGGG";
 
     private MethodChannel toFlutterChannel;
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // handle READ_PHONE_STATE permission result
+        if (requestCode == 1) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // permission granted
+                Log.d(TAG, "onRequestPermissionsResult: permission granted");
+            } else {
+                // permission denied
+                Log.d(TAG, "onRequestPermissionsResult: permission denied");
+            }
+        }
+    }
 
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
@@ -44,7 +62,7 @@ public class MainActivity extends FlutterActivity {
                             // This method is invoked on the main thread.
                             switch (call.method) {
                                 case "executeUSSD":
-                                    executeUSSD(call.argument("ussdCode"), call.argument("fullRoute"));
+                                    executeUSSD(call.argument("ussdCode"), call.argument("fullRoute"), call.argument("carrierName"));
                                     break;
 
                                 case "isServiceEnabled":
@@ -130,24 +148,84 @@ public class MainActivity extends FlutterActivity {
      * @param ussdCode  - A ussd code, e.g. *130#, *162*6#
      * @param fullRoute - The sequence of steps or inputs, e.g. 1;4;2;5;6;844333161;1
      */
-    private void executeUSSD(String ussdCode, String fullRoute) {
-        toFlutterChannel.invokeMethod("onVolumeUpLongPress", null);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-                return;
+    private void executeUSSD(String ussdCode, String fullRoute, String carrierName) {
+        int simSlot = 0;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (isDualSim()) {
+                simSlot = getSimSlot(carrierName);
+                String ussd = formatUSSDCode(ussdCode);
+                MyAccessibilityService.route = null;
+                MyAccessibilityService.route = stringToArrayList(fullRoute);
+                Log.d("ROTA COMPLETA", MyAccessibilityService.route.toString());
+                Intent intent = new Intent("android.intent.action.CALL", Uri.parse("tel:" + ussd));
+                /*
+                    "extra_asus_dial_use_dualsim",
+                    "com.android.phone.extra.slot",
+                    "slot",
+                    "simslot",
+                    "sim_slot",
+                    "subscription",
+                    "Subscription",
+                    "phone",
+                    "com.android.phone.DialingMode",
+                    "simSlot",
+                    "slot_id",
+                    "simId",
+                    "simnum",
+                    "phone_type",
+                    "slotId",
+                    "slotIdx"
+                 */
+                intent.putExtra("com.android.phone.force.slot", true);
+                intent.putExtra("Cdma_Supp", true);
+                intent.putExtra("simSlot", simSlot);
+                intent.putExtra("com.android.phone.extra.slot", simSlot);
+                intent.putExtra("com.android.phone.extra", simSlot);
+                startActivity(intent);
             }
-        } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        }else{
+            String ussd = formatUSSDCode(ussdCode);
+            MyAccessibilityService.route = null;
+            MyAccessibilityService.route = stringToArrayList(fullRoute);
+            Log.d("ROTA COMPLETA", MyAccessibilityService.route.toString());
+            Intent intent = new Intent("android.intent.action.CALL", Uri.parse("tel:" + ussd));
+            startActivity(intent);
+        }
+
+
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public boolean isDualSim() {
+        TelephonyManager manager = (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
+        return manager.getPhoneCount() == 2;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP_MR1)
+    public int getSimSlot(String userCarrierName){
+        int slotIndex = 0;
+        SubscriptionManager subscriptionManager = (SubscriptionManager) getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, 1);
+        }
+        List<SubscriptionInfo> subscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
+
+        if(subscriptionInfoList!=null && subscriptionInfoList.size()>0){
+            for (int i = 0; i < subscriptionInfoList.size(); i++) {
+                SubscriptionInfo info = subscriptionInfoList.get(i);
+                String carrierName = info.getCarrierName().toString();
+                if(carrierName.equalsIgnoreCase(userCarrierName)){
+                    slotIndex = info.getSimSlotIndex();
+                    break;
+                }
+//                Log.d("slotIndex", String.valueOf(slotIndex));
+//                Log.d("carrierName", carrierName);
+
             }
         }
-        String ussd = formatUSSDCode(ussdCode);
-        String[] route = fullRoute.split(";");
-        MyAccessibilityService.route = null;
-//        MyAccessibilityService.route = new ArrayList<>(Arrays.asList(route));
-        MyAccessibilityService.route = stringToArrayList(fullRoute);
-        Log.d("ROTA COMPLETA", MyAccessibilityService.route.toString());
-        Intent intent = new Intent("android.intent.action.CALL", Uri.parse("tel:" + ussd));
-        startActivity(intent);
+        return slotIndex;
     }
 
     private static String formatUSSDCode(String rawUssd) {
@@ -166,3 +244,53 @@ public class MainActivity extends FlutterActivity {
     }
 
 }
+/*
+private List<PhoneAccountHandle> phoneAccountHandleList;
+int item =0;// 0 for sim1 & 1 for sim2
+private final static String simSlotName[] = {
+    "extra_asus_dial_use_dualsim",
+    "com.android.phone.extra.slot",
+    "slot",
+    "simslot",
+    "sim_slot",
+    "subscription",
+    "Subscription",
+    "phone",
+    "com.android.phone.DialingMode",
+    "simSlot",
+    "slot_id",
+    "simId",
+    "simnum",
+    "phone_type",
+    "slotId",
+    "slotIdx"
+};
+
+
+TelecomManager telecomManager = (TelecomManager)this.getSystemService(Context.TELECOM_SERVICE);
+phoneAccountHandleList = telecomManager.getCallCapablePhoneAccounts();
+Intent intent = new Intent(Intent.ACTION_CALL).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+intent.setData(Uri.parse("tel:" + number));
+intent.putExtra("com.android.phone.force.slot", true);
+intent.putExtra("Cdma_Supp", true);
+if (item == 0) {//for sim1
+    for (String s : simSlotName){
+       intent.putExtra(s, 0); //0 or 1 according to sim.......
+    }
+    if (phoneAccountHandleList != null && phoneAccountHandleList.size() > 0)
+    {
+       intent.putExtra("android.telecom.extra.PHONE_ACCOUNT_HANDLE",
+        phoneAccountHandleList.get(0));
+    }
+} else {//for sim2
+   for (String s : simSlotName) {
+       intent.putExtra(s, 1); //0 or 1 according to sim.......
+    }
+   if (phoneAccountHandleList != null && phoneAccountHandleList.size() > 1){
+       intent.putExtra("android.telecom.extra.PHONE_ACCOUNT_HANDLE",
+       phoneAccountHandleList.get(1));
+   }
+ }
+  startActivity(intent);
+
+ */

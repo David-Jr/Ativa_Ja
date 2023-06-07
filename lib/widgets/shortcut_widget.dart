@@ -27,65 +27,67 @@ class _ShortcutWidgetState extends State<ShortcutWidget> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: ListTile(
-        onTap:() async => {
-          if (!await MethodChannelController().isServiceEnabled())
-            {
-              _promptServiceActivation(),
-            }
-          else
-            {
-              if (await _checkCallPhonePermission())
-                {
-                  MethodChannelController()
-                      .executeUSSD(widget.shortcut.ussdCode, widget.shortcut.steps),
-                  ListsController().addToRecentsList(widget.shortcut.id),
-                  // HiveData().addRecentes(widget.id),
-                }
-              else
-                {_requestCallPhonePermission()}
+          onTap: () async => {
+                if (!await MethodChannelController().isServiceEnabled())
+                  {
+                    _promptServiceActivation(),
+                  }
+                else
+                  {
+                    if (await _checkCallPhonePermission())
+                      {
+                        MethodChannelController().executeUSSD(
+                            widget.shortcut.ussdCode,
+                            widget.shortcut.steps,
+                            widget.shortcut.isp.name),
+                        ListsController().addToRecentsList(widget.shortcut.id),
+                        // HiveData().addRecentes(widget.id),
+                      }
+                    else
+                      {_requestCallPhonePermission()}
+                  },
+              },
+          onLongPress: () =>
+              VoiceController().speak(widget.shortcut.description),
+          leading: SvgPicture.asset(
+            widget.shortcut.isp.svgPath,
+            // ignore: deprecated_member_use
+            color: widget.shortcut.isp.hexColor,
+            height: 30,
+            width: 30,
+          ),
+          title: Text(widget.shortcut.tittle),
+          trailing: IconButton(
+            onPressed: () {
+              //todo
+              if (widget.shortcut.isFavorite.isTrue) {
+                // HiveData().removeFavorite(widget.id);
+                ListsController().removeFavorite(widget.shortcut.id);
+                _showConfirmationSnackBar();
+                setState(() {});
+              } else {
+                // HiveData().addFavorito(widget.id);
+                ListsController().addFavorite(widget.shortcut.id);
+                setState(() {});
+              }
             },
-        },
-        onLongPress: () => VoiceController().speak(widget.shortcut.description),
-        leading: SvgPicture.asset(
-          widget.shortcut.isp.svgPath,
-          // ignore: deprecated_member_use
-          color: widget.shortcut.isp.hexColor,
-          height: 30,
-          width: 30,
-        ),
-        title: Text(widget.shortcut.tittle),
-        trailing: IconButton(
-          onPressed: () {
-            //todo
-            if (widget.shortcut.isFavorite.isFalse) {
-              // HiveData().removeFavorite(widget.id);
-              ListsController().removeFavorite(widget.shortcut.id);
-              _showConfirmationSnackBar();
-              setState(() {});
-            } else {
-              // HiveData().addFavorito(widget.id);
-              ListsController().addFavorite(widget.shortcut.id);
-              setState(() {});
-            }
-          },
-          icon: Icon(
-            Icons.favorite,
-            color:
-                widget.shortcut.isFavorite.isTrue ? Colors.pink : Colors.grey,
+            icon: Icon(
+              Icons.favorite,
+              color:
+                  widget.shortcut.isFavorite.isTrue ? Colors.pink : Colors.grey,
+            ),
           ),
-        ),
-        subtitle: Text(widget.shortcut.isp.name),
-        shape: RoundedRectangleBorder(
-          side: BorderSide(
-            color: Theme.of(context).colorScheme.outline,
-            width: 1,
-          ),
-          borderRadius: BorderRadius.circular(10),
-        )
-      ),
+          subtitle: Text(widget.shortcut.isp.name),
+          shape: RoundedRectangleBorder(
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.outline,
+              width: 1,
+            ),
+            borderRadius: BorderRadius.circular(10),
+          )),
     );
   }
-  
+
   void _showConfirmationSnackBar() {
     Get.snackbar(
       'Cancelar Acção',

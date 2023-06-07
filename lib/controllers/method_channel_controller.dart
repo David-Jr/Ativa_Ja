@@ -13,10 +13,10 @@ class MethodChannelController {
     ussdChannel.invokeMethod("enableService");
   }
 
-  void executeUSSD(String ussdCode, String steps) {
+  void executeUSSD(String ussdCode, String steps, String carrierName) {
     ussdChannel.invokeMethod(
       "executeUSSD",
-      {"ussdCode": ussdCode, "fullRoute": steps},
+      {"ussdCode": ussdCode, "fullRoute": steps, "carrierName": carrierName},
     );
   }
 }
