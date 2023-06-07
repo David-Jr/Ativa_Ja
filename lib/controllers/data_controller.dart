@@ -28,16 +28,26 @@ class ListsController extends GetxController {
     return [..._ispList];
   }
 
-  void addFavorite(int id) {
-    //
+  Shortcut? _findById(int id) {
+    for (var shortcut in _shortcutList) {
+      if (id == shortcut.id) {
+        return shortcut;
+      }
+    }
+    return null;
   }
 
   void addToRecentsList(int id) {
-    //
+    _recentsList.add(_findById(id) as Shortcut);
   }
 
   void removeFavorite(int id) {
-    
-    //
+    final int index = _shortcutList.indexWhere((shortcut) => shortcut.id == id);
+    _shortcutList[index].isFavorite.value = false;
+  }
+
+  void addFavorite(int id) {
+    final int index = _shortcutList.indexWhere((shortcut) => shortcut.id == id);
+    _shortcutList[index].isFavorite.value = true;
   }
 }
