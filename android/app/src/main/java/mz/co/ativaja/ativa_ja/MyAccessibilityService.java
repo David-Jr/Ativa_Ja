@@ -1,7 +1,5 @@
 package mz.co.ativaja.ativa_ja;
 
-
-
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.content.Context;
@@ -84,7 +82,7 @@ public class MyAccessibilityService extends AccessibilityService {
     private static String getTextFromANI(List<AccessibilityNodeInfo> anis) {
         StringBuilder text = new StringBuilder("[");
         for (AccessibilityNodeInfo ani : anis) {
-            text.append("(" + ani.getText() + ", " + ani.getClassName() + "), ");
+            text.append("(").append(ani.getText()).append(", ").append(ani.getClassName()).append("), ");
         }
         text.append("]");
         return text.toString();
@@ -148,16 +146,17 @@ public class MyAccessibilityService extends AccessibilityService {
         info.notificationTimeout = 100;
         info.packageNames = null;
         setServiceInfo(info);
-        //todo: Show message to user
+        // todo: Show message to user
     }
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         if (event.getSource() != null) {
 
-            Log.d("getClassName()", String.valueOf(event.getClassName()));
-            Log.d("getText()", event.getSource() != null ? String.valueOf(event.getSource().getText()) : "getSource Is Null");
-            Log.d("isClickable()", event.getSource() != null ? String.valueOf(event.getSource().isClickable()) : "getSource Is Null 2");
+//            Log.d("getClassName()", String.valueOf(event.getClassName()));
+//            Log.d("getText()", event.getSource() != null ? String.valueOf(event.getSource().getText()) : "getSource Is Null");
+//            Log.d("isClickable()", event.getSource() != null ? String.valueOf(event.getSource().isClickable()): "getSource Is Null 2");
+
             AccessibilityEvent auxEvent = event;
 
             if (MENU_OPTIONS == null && getMenuOptions(event) != null) {
@@ -171,55 +170,65 @@ public class MyAccessibilityService extends AccessibilityService {
             }
 
             if (MENU_OPTIONS != null && SEND_BUTTON != null && TEXT_FIELD != null && route.size() > 0) {
-//                Log.d("Menu Options", Arrays.toString(MENU_OPTIONS)); //todo: Uncomment
-//                Log.d("SEND BUTTON", SEND_BUTTON.toString()); //todo: Uncomment
-//                Log.d("TEXT FIELD", TEXT_FIELD.toString()); //todo: Uncomment
+//                Log.d("SEND-BUTTON", SEND_BUTTON.toString()); //todo: Uncomment
+                Log.d("MENU-OPTIONS", Arrays.toString(MENU_OPTIONS)); //todo: Uncomment
+//                 Log.d("TEXT-FIELD", TEXT_FIELD.toString()); //todo: Uncomment
 
                 Bundle arguments = new Bundle();
                 if (!route.isEmpty()) {
-                    arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, route.get(0));
+                    arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,
+                            route.get(0));
                     TEXT_FIELD.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments);
                 }
 
                 SEND_BUTTON.performAction(AccessibilityNodeInfo.ACTION_CLICK);
 
-
-                Log.d("------------", route.get(0) + " Selected");
+                Log.d("SELECTED-OPTION", route.get(0));
                 route.remove(0);
                 MENU_OPTIONS = null;
                 SEND_BUTTON = null;
                 TEXT_FIELD = null;
-                Log.d("------------", route.toString());
+                Log.d("ROUTE", route.toString());
+
+            } else if (route != null && route.isEmpty()) {
+
             }
 
-//            if(route.size() == 0){
-//                String eventText = event.getSource().getText().toString().toLowerCase();
-//                if(eventText.contains("vodacom") || eventText.contains("movitel") || eventText.contains("tmcel")){
-//                    Log.d("", event.getClassName().toString());
-//                }
-//            }
             Log.d("___", "________________________________________________");
         }
     }
 
     @Override
     public void onDestroy() {
+        route = null;
+        SEND_BUTTON = null;
+        CANCEL_BUTTON = null;
+        OK_BUTTON = null;
+        TEXT_FIELD = null;
+        MENU_OPTIONS = null;
         super.onDestroy();
         Log.d("M.A.S", "onDestroy() - Service Disconnected");
     }
 
     @Override
     public void onInterrupt() {
+        route = null;
+        SEND_BUTTON = null;
+        CANCEL_BUTTON = null;
+        OK_BUTTON = null;
+        TEXT_FIELD = null;
+        MENU_OPTIONS = null;
+        super.onDestroy();
         Log.d("M.A.S", "onInterrupt");
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
-    private boolean isDualSim(){
+    private boolean isDualSim() {
         TelephonyManager manager = (TelephonyManager) getApplicationContext()
                 .getSystemService(Context.TELEPHONY_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return manager.getPhoneCount() > 1;
-        }else {
+        } else {
             return false;
         }
     }
@@ -235,7 +244,7 @@ public class MyAccessibilityService extends AccessibilityService {
                 || event.getClassName().equals("miuix.appcompat.app.AlertDialog"));
     }
 
-    public AccessibilityNodeInfo getSIMOptions(AccessibilityEvent event){
+    public AccessibilityNodeInfo getSIMOptions(AccessibilityEvent event) {
         List<AccessibilityNodeInfo> matches = new ArrayList<>();
         if (event.getSource() != null) {
             matches = event.getSource().findAccessibilityNodeInfosByText("Vodacom");
@@ -245,5 +254,12 @@ public class MyAccessibilityService extends AccessibilityService {
         } else {
             return null;
         }
+    }
+
+    public static void cleanVaribles(){
+        route = null;
+        MENU_OPTIONS = null;
+        SEND_BUTTON = null;
+        TEXT_FIELD = null;
     }
 }
