@@ -14,8 +14,6 @@ import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -88,26 +86,7 @@ public class MainActivity extends FlutterActivity {
                 TO_FLUTTER_CHANNEL);
     }
 
-    @Override
-    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
-        //todo: Check if volume up key is long pressed
-        //todo: Send info to flutter side via method channel
-        // reference: https://stackoverflow.com/questions/68689778/how-to-override-power-and-volume-buttons-in-flutter
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-            Toast.makeText(this, "Volume Up Long Press", Toast.LENGTH_SHORT).show();
-            Log.d("Long Press", "VOLUME DOWN LONG PRESS DETECTED!");
-            toFlutterChannel.invokeMethod("onVolumeUpLongPress", null);
-        }
-        return super.onKeyLongPress(keyCode, event);
-    }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP && event.isLongPress()) {
-            return true; // this prevents the system from executing the keydown command
-        }
-        return super.onKeyDown(keyCode, event);
-    }
 
     private boolean isServiceEnabled(Context context) {
         ComponentName expectedComponentName = new ComponentName(context, MyAccessibilityService.class);
@@ -146,7 +125,7 @@ public class MainActivity extends FlutterActivity {
      * @param fullRoute - The sequence of steps or inputs, e.g. 1;4;2;5;6;844333161;1
      */
     private void executeUSSD(String ussdCode, String fullRoute, String carrierName) {
-        int simSlot = 0;
+        int simSlot;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (isDualSim()) {
                 simSlot = getSimSlot(carrierName);
