@@ -2,6 +2,7 @@ import 'package:ativa_ja/pages/blind/blind_friendly_mode.dart';
 import 'package:ativa_ja/pages/favorites/favorites_page.dart';
 import 'package:ativa_ja/pages/history/history_page.dart';
 import 'package:ativa_ja/pages/home/home_page.dart';
+import 'package:ativa_ja/pages/new_shortcut/new_shortcut_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -20,14 +21,10 @@ class _RootPageState extends State<RootPage> {
   Widget build(BuildContext context) {
     return Listener(
       onPointerDown: (event) {
-        setState(() {
-          activePointers++;
-        });
+        setState(() => activePointers++);
       },
       onPointerUp: (event) {
-        setState(() {
-          activePointers--;
-        });
+        setState(() => activePointers--);
       },
       onPointerMove: (event) {
         if (activePointers == 2 && event.delta.dy > 0) {
@@ -51,11 +48,11 @@ class _RootPageState extends State<RootPage> {
             ),
           ),
           body: const TabBarView(
-            children: [
-              HomePage(),
-              FavoritesPage(),
-              HistoryPage()
-            ],
+            children: [HomePage(), FavoritesPage(), HistoryPage()],
+          ),
+          floatingActionButton: FloatingActionButton(
+            child: const Icon(Icons.add),
+            onPressed: () => Get.to(() => const NewShortcutPage()),
           ),
         ),
       ),
