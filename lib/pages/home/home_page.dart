@@ -14,15 +14,32 @@ class _HomePageState extends State<HomePage> {
   final shortcuts = Get.find<ListsController>();
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implemen...
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Obx(
-        () => ListView.builder(
-          itemCount: shortcuts.shortcutList.length,
-          itemBuilder: (context, index) {
-            return ShortcutWidget(shortcut: shortcuts.shortcutList[index]);
+        () => RefreshIndicator(
+          onRefresh: () {
+            return Future.delayed(const Duration(milliseconds: 300));
           },
+          child: ListView.builder(
+            itemCount: shortcuts.shortcutList.length,
+            itemBuilder: (context, index) {
+              return ShortcutWidget(shortcut: shortcuts.shortcutList[index]);
+            },
+          ),
         ),
       ),
     );
