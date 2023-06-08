@@ -22,7 +22,6 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import io.flutter.embedding.android.FlutterActivity;
@@ -66,7 +65,7 @@ public class MainActivity extends FlutterActivity {
                                     break;
 
                                 case "isServiceEnabled":
-                                    if (isServiceEnabled(MainActivity.this, MyAccessibilityService.class)) {
+                                    if (isServiceEnabled(MainActivity.this)) {
                                         result.success(true);
                                     } else {
                                         result.success(false);
@@ -90,7 +89,6 @@ public class MainActivity extends FlutterActivity {
     }
 
     @Override
-    @Deprecated
     public boolean onKeyLongPress(int keyCode, KeyEvent event) {
         //todo: Check if volume up key is long pressed
         //todo: Send info to flutter side via method channel
@@ -104,7 +102,6 @@ public class MainActivity extends FlutterActivity {
     }
 
     @Override
-    @Deprecated
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP && event.isLongPress()) {
             return true; // this prevents the system from executing the keydown command
@@ -112,8 +109,8 @@ public class MainActivity extends FlutterActivity {
         return super.onKeyDown(keyCode, event);
     }
 
-    private boolean isServiceEnabled(Context context, Class<?> accessibilityService) {
-        ComponentName expectedComponentName = new ComponentName(context, accessibilityService);
+    private boolean isServiceEnabled(Context context) {
+        ComponentName expectedComponentName = new ComponentName(context, MyAccessibilityService.class);
 
         String enabledServicesSetting = Settings.Secure.getString(
                 context.getContentResolver(),
@@ -154,10 +151,11 @@ public class MainActivity extends FlutterActivity {
             if (isDualSim()) {
                 simSlot = getSimSlot(carrierName);
                 String ussd = formatUSSDCode(ussdCode);
+                MyAccessibilityService.cleanVaribles();
                 MyAccessibilityService.route = null;
                 MyAccessibilityService.route = stringToArrayList(fullRoute);
-                Log.d("ROTA COMPLETA", MyAccessibilityService.route.toString());
                 Intent intent = new Intent("android.intent.action.CALL", Uri.parse("tel:" + ussd));
+                Log.d("ROTA-COMPLETA", MyAccessibilityService.route.toString());
                 /*
                     "extra_asus_dial_use_dualsim",
                     "com.android.phone.extra.slot",
@@ -187,7 +185,7 @@ public class MainActivity extends FlutterActivity {
             String ussd = formatUSSDCode(ussdCode);
             MyAccessibilityService.route = null;
             MyAccessibilityService.route = stringToArrayList(fullRoute);
-            Log.d("ROTA COMPLETA", MyAccessibilityService.route.toString());
+            Log.d("ROTA-COMPLETA", MyAccessibilityService.route.toString());
             Intent intent = new Intent("android.intent.action.CALL", Uri.parse("tel:" + ussd));
             startActivity(intent);
         }
@@ -242,6 +240,8 @@ public class MainActivity extends FlutterActivity {
         }
         return route;
     }
+
+
 
 }
 /*
