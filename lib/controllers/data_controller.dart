@@ -24,6 +24,10 @@ class ListsController extends GetxController {
         .toList();
   }
 
+  List<Shortcut> get recentShortcuts {
+    return [..._recentsList];
+  }
+
   List<Isp> get ispList {
     return [..._ispList];
   }
