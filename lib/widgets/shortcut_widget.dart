@@ -99,8 +99,7 @@ class _ShortcutWidgetState extends State<ShortcutWidget> {
       padding: const EdgeInsets.all(18),
       mainButton: TextButton.icon(
         onPressed: () {
-          // ListsController().addFavorite(widget.id);
-          // HiveData().addFavorito(widget.id);
+          ListsController().addFavorite(widget.shortcut.id);
           //todo
           Get.back();
         },
